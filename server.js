@@ -1,9 +1,30 @@
 const http = require('http');
 const axios = require('axios');
+const crypto = require('crypto');
 
 const PORT = process.env.PORT || 3000;
 const PIXEL_ID = '359988621109574';
-const ACCESS_TOKEN = 'EAAm2xmInmFsBRIPFi73MrInfVdyG3GCDeffc0SZChxpF9tUgqijMHRBWGYgfgieO3zqZCYINc4QHaov2S6PFycsl7W4BKXuzmiOlnBZACD5bMCU9UG7mUp0fBH3PcBZCcM3lY9Gx6XyvdBwZCyixjT8U26sN45g16jiZBjKM6W9R3hXUIaSAFNobnIkIk6kWaFNjxbBcFEerEmC0C6c36ZCA8VdY5WQ3N7ZC74vLIMST1SqIP8wd4RhmZBZB8tE1vB3Rk3pbHq0HJjZAqtbgJ4fTbiCVZAO9I5ZAOLQZDZD';
+const ACCESS_TOKEN = 'EABVsPwmVH20BREL54FbOJyk1pfjZBdZBv3OQSv7cXpFXJEIyxXr9QaZBRNZCQZA3BZCExH8pQga58AryB2MLloZAVqMTGiZADr8aCNkoTaj4HQDEbQ4jVGqX1YkgHkrZAbKwdJ7t72ApxdXkwncsMZCFgAS9otkPKdYUvyQv8kb84J3O329l6kkvRjzbCWlR5KtEwslgZDZD';
+
+// Fonction pour hasher une valeur
+function hashValue(value) {
+  if (!value) return undefined;
+  return crypto.createHash('sha256').update(String(value).toLowerCase().trim()).digest('hex');
+}
+
+// Fonction pour normaliser et hasher le phone (digits only)
+function hashPhone(phone) {
+  if (!phone) return undefined;
+  const digits = String(phone).replace(/\D/g, '');
+  return crypto.createHash('sha256').update(digits).digest('hex');
+}
+
+// Fonction pour normaliser et hasher un nom (remove spaces and special chars)
+function hashName(name) {
+  if (!name) return undefined;
+  const normalized = String(name).toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/g, '');
+  return crypto.createHash('sha256').update(normalized).digest('hex');
+}
 
 const server = http.createServer(async (req, res) => {
   if (req.method === 'POST') {
@@ -25,7 +46,14 @@ const server = http.createServer(async (req, res) => {
               event_time: Math.floor(Date.now() / 1000),
               action_source: 'system_generated',
               user_data: {
-                em: event.customer_email ? crypto.createHash('sha256').update(event.customer_email.toLowerCase()).digest('hex') : undefined,
+                em: hashValue(event.customer_email),
+                ph: hashPhone(event.customer_phone),
+                fn: hashName(event.customer_first_name),
+                ln: hashName(event.customer_last_name),
+                ct: hashValue(event.customer_city),
+                st: hashValue(event.customer_state),
+                zp: hashValue(event.customer_zip),
+                country: hashValue(event.customer_country),
               },
               test_event_code: 'TEST59669',
             }
@@ -44,7 +72,7 @@ const server = http.createServer(async (req, res) => {
       } catch (error) {
         console.error('Erreur:', error.message);
         res.writeHead(500);
-        res.end('Erreur');
+        res.end(JSON.stringify({ error: error.response ? error.response.data : error.message }));
       }
     });
   }
