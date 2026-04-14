@@ -55,7 +55,7 @@ const server = http.createServer(async (req, res) => {
                 zp: hashValue(event.customer_zip),
                 country: hashValue(event.customer_country),
               },
-              test_event_code: 'TEST59669',
+              test_event_code: 'TEST65399',
             }
           ]
         };
