@@ -23,9 +23,11 @@ const server = http.createServer(async (req, res) => {
             {
               event_name: 'Purchase', // Ou 'Lead'
               event_time: Math.floor(Date.now() / 1000),
+              action_source: 'system_generated',
               user_data: {
-                em: event.customer_email ? event.customer_email.toLowerCase() : undefined,
+                em: event.customer_email ? crypto.createHash('sha256').update(event.customer_email.toLowerCase()).digest('hex') : undefined,
               },
+              test_event_code: 'TEST59669',
             }
           ]
         };
