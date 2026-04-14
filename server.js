@@ -27,6 +27,8 @@ const server = http.createServer(async (req, res) => {
               user_data: {
                 em: event.customer_email ? crypto.createHash('sha256').update(event.customer_email.toLowerCase()).digest('hex') : undefined,
               },
+              test_event_code: 'TEST59669',
+              test_event_code: 'TEST59669',
             }
           ]
         };
