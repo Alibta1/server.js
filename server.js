@@ -1,5 +1,6 @@
 const http = require('http');
 const axios = require('axios');
+const crypto = require('crypto');
 
 const PORT = process.env.PORT || 3000;
 const PIXEL_ID = '359988621109574';
@@ -24,14 +25,14 @@ const server = http.createServer(async (req, res) => {
               event_name: 'Lead', // Ou 'Purchase'
               event_time: Math.floor(Date.now() / 1000),
               user_data: {
-                em: event.customer_email ? event.customer_email.toLowerCase() : undefined,
+                em: event.customer_email ? crypto.createHash('sha256').update(event.customer_email.toLowerCase()).digest('hex') : undefined,
               },
             }
           ]
         };
         
         await axios.post(
-          `https://graph.facebook.com/v18.0/${PIXEL_ID}/events`,
+          `https://graph.facebook.com/v20.0/${PIXEL_ID}/events`,
           metaPayload,
           { params: { access_token: ACCESS_TOKEN } }
         );
