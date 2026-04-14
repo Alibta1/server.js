@@ -34,7 +34,7 @@ const server = http.createServer(async (req, res) => {
         };
         
         await axios.post(
-          `https://graph.facebook.com/v20.0/${PIXEL_ID}/events`,
+          `https://graph.facebook.com/v18.0/${PIXEL_ID}/events`,
           metaPayload,
           { params: { access_token: ACCESS_TOKEN } }
         );
